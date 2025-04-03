@@ -119,21 +119,21 @@ Tools > MCP Bridge > MCP Bridge Settings
 - Check the [Unity Bridge docs](https://docs.modelcontextprotocol.io/unity-bridge)
 - Open an issue with:
   - What you tried
-  - What fucked up
+  - What screwed up
   - Error messages
   - Relevant code
 
 ## Contributing
 
-1. Fork this shit
+1. Fork this
 2. Create your feature branch
 3. Make your changes
-4. Test your shit
+4. Test your stuff
 5. Submit a pull request
 
 ## License
 
-MIT - Do whatever the fuck you want
+MIT - Do whatever the f you want
 
 ---
 Made with 🖕 using [Model Context Protocol](https://modelcontextprotocol.io)
