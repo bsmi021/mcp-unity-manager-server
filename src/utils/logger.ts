@@ -1,6 +1,6 @@
 ﻿/**
- * Simple structured logger utility that writes JSON to stderr.
- */
+* Simple structured logger utility that writes JSON to stderr.
+*/
 
 // Define log levels
 enum LogLevel {
@@ -9,6 +9,22 @@ enum LogLevel {
     WARN = 'WARN',
     ERROR = 'ERROR',
 }
+
+// Define numeric severity for levels
+const LogLevelSeverity: { [key in LogLevel]: number } = {
+    [LogLevel.DEBUG]: 0,
+    [LogLevel.INFO]: 1,
+    [LogLevel.WARN]: 2,
+    [LogLevel.ERROR]: 3,
+};
+
+// Determine the configured log level from environment variable
+const configuredLogLevelStr = process.env.LOG_LEVEL?.toUpperCase() || 'INFO';
+const configuredLogLevel = (Object.values(LogLevel).includes(configuredLogLevelStr as LogLevel))
+    ? configuredLogLevelStr as LogLevel
+    : LogLevel.INFO; // Default to INFO if invalid
+const configuredSeverity = LogLevelSeverity[configuredLogLevel];
+
 
 // Interface for the structured log entry
 interface LogEntry {
@@ -64,18 +80,22 @@ function writeLog(level: LogLevel, message: string, context?: Record<string, any
 // Logger object with methods for different levels
 export const logger = {
     debug: (message: string, context?: Record<string, any>): void => {
-        // Optional: Add check for LOG_LEVEL env var here
-        // if (process.env.LOG_LEVEL === 'DEBUG') { ... }
-        writeLog(LogLevel.DEBUG, message, context);
+        if (configuredSeverity <= LogLevelSeverity.DEBUG) {
+            writeLog(LogLevel.DEBUG, message, context);
+        }
     },
     info: (message: string, context?: Record<string, any>): void => {
-        writeLog(LogLevel.INFO, message, context);
+        if (configuredSeverity <= LogLevelSeverity.INFO) {
+            writeLog(LogLevel.INFO, message, context);
+        }
     },
     warn: (message: string, context?: Record<string, any>): void => {
-        writeLog(LogLevel.WARN, message, context);
+        if (configuredSeverity <= LogLevelSeverity.WARN) {
+            writeLog(LogLevel.WARN, message, context);
+        }
     },
     error: (message: string, error?: unknown, context?: Record<string, any>): void => {
-        // Pass error object to writeLog for structured error logging
+        // Error logs are always written regardless of configured level (severity 3)
         writeLog(LogLevel.ERROR, message, context, error);
     },
 };

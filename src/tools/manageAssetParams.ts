@@ -16,8 +16,16 @@ const ManageAssetAction = z.enum([
     'rename',
     'import',
     'get_info',
-    'find_usages'
+    'find_usages',
+    'create_prefab' // Added new action
 ]).describe("The specific asset management operation to perform.");
+
+// Re-use GameObjectIdentifierSchema from manageGameObjectParams
+// We need to import it, assuming it's exported there.
+// If not, we'd need to define it here or in a shared types file.
+// For now, let's assume it's exported from manageGameObjectParams.js
+// (We'll need to add the import statement later)
+import { GameObjectIdentifierSchema } from './manageGameObjectParams.js'; // Placeholder import
 
 // Define the base schema
 export const ManageAssetParamsSchema = z.object({
@@ -40,7 +48,10 @@ export const ManageAssetParamsSchema = z.object({
         Note: This corresponds to Unity class names or common asset types.`
     ),
     force: z.boolean().optional().default(false).describe(
-        "If true, forces the operation even if it might overwrite or delete existing assets without confirmation (e.g., for 'delete', 'move'). Defaults to false."
+        "If true, forces the operation even if it might overwrite or delete existing assets without confirmation (e.g., for 'delete', 'move', 'import'). Defaults to false."
+    ),
+    source_gameobject_identifier: GameObjectIdentifierSchema.optional().describe(
+        "Required for 'create_prefab' action. Identifier for the source GameObject in the current scene to create the prefab from."
     ),
     // TODO: Define import_settings schema if needed for 'import' action
     // import_settings: z.object({}).optional().describe("Optional settings specific to the 'import' action."),
@@ -62,7 +73,25 @@ export const ManageAssetParamsSchema = z.object({
 }, {
     message: "asset_type is required for the 'create_asset' action.",
     path: ["asset_type"], // Field responsible for the error
+}).refine(data => {
+    // Validation for create_prefab requirements
+    if (data.action === 'create_prefab') {
+        // Check path exists and ends with .prefab (case-insensitive)
+        if (!data.path || !data.path.toLowerCase().endsWith('.prefab')) {
+            return false;
+        }
+        // Check source identifier exists
+        if (!data.source_gameobject_identifier) {
+            return false; // Source identifier is required
+        }
+    }
+    return true;
+}, {
+    message: "For 'create_prefab', 'path' (ending in .prefab) and 'source_gameobject_identifier' are required.",
+    // Specify multiple paths if the error could relate to either
+    path: ["path", "source_gameobject_identifier"],
 });
+
 
 // Define the type from the schema
 export type ManageAssetParams = z.infer<typeof ManageAssetParamsSchema>;
@@ -92,6 +121,9 @@ export const TOOL_PARAMS = {
     ),
     // TODO: Define import_settings schema if needed for 'import' action
     // import_settings: z.object({}).optional().describe("Optional settings specific to the 'import' action."),
+    source_gameobject_identifier: GameObjectIdentifierSchema.optional().describe(
+        "Required for 'create_prefab' action. Identifier for the source GameObject in the current scene."
+    ),
 };
 
 // Example Usage (for documentation or testing)
@@ -103,3 +135,4 @@ const exampleRename: ManageAssetParams = { action: 'rename', path: 'Assets/OldNa
 const exampleImport: ManageAssetParams = { action: 'import', path: 'C:/Users/Me/Downloads/MyTexture.png', destination_path: 'Assets/Textures/MyTexture.png', force: false };
 const exampleGetInfo: ManageAssetParams = { action: 'get_info', path: 'Assets/MyModel.fbx', force: false };
 const exampleFindUsages: ManageAssetParams = { action: 'find_usages', path: 'Assets/SharedMaterial.mat', force: false };
+const exampleCreatePrefab: ManageAssetParams = { action: 'create_prefab', path: 'Assets/MyPrefab.prefab', source_gameobject_identifier: { name: "SourceObjectName" }, force: false };

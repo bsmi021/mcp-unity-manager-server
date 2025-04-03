@@ -20,7 +20,7 @@ const ManageGameObjectAction = z.enum([
 
 // --- Identifier Schema ---
 // Used to find/target GameObjects
-const GameObjectIdentifierSchema = z.object({
+export const GameObjectIdentifierSchema = z.object({ // Added export
     name: z.string().optional().describe("Find/target GameObject by its exact name."),
     path: z.string().optional().describe("Find/target GameObject by its hierarchy path (e.g., 'Parent/Child/Target')."),
     instance_id: z.number().int().optional().describe("Target a specific GameObject by its instance ID."),

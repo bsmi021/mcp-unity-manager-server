@@ -1,100 +1,139 @@
-﻿# MCP Server Template (`create-mcp-server`)
+﻿![MCP Unity Manager Logo](assets/logo.svg)
 
-This template helps you quickly bootstrap a new Model Context Protocol (MCP) server project based on recommended practices.
+**Control Unity Editor like a fucking boss with MCP.**
 
-## Usage (Creating a New Server)
+## What is this shit?
 
-To create a new MCP server project named `my-new-mcp-server`, run the following command using `npx`:
+The MCP Unity Manager Server is a TypeScript powerhouse that lets you control Unity Editor programmatically through the Model Context Protocol (MCP). Built to work seamlessly with the [Unity Bridge Asset](https://github.com/modelcontext/mcp-unity-bridge-asset), it's your gateway to automating Unity tasks like a pro.
 
-```bash
-npx create-mcp-server my-new-mcp-server
+## Key Features
+
+- 🎮 **Full Unity Control**: Create, modify, and delete assets, GameObjects, and scenes
+- 🔌 **Flexible Connection**: WebSocket or Stdio - you choose how to connect
+- 🧵 **Thread Safe**: We handle all the threading bullshit so you don't have to
+- 🚀 **Simple API**: Clean, intuitive interface for Unity automation
+- ⚡ **Fast & Reliable**: Built for performance and stability
+
+## Quick Setup
+
+1. **Install the Unity Bridge**
+
+   ```bash
+   # In Unity: Window -> Package Manager -> + -> Add package from git URL
+   https://github.com/modelcontext/mcp-unity-bridge-asset.git
+   ```
+
+2. **Configure the Bridge**
+   - Unity Editor -> Edit -> Project Settings -> MCP Bridge
+   - Set WebSocket port (default: 8765)
+
+3. **Run this Server**
+
+   ```bash
+   npm install
+   npm run build
+   npm start
+   ```
+
+## Basic Usage
+
+```typescript
+// Create a new material
+await mcpClient.execute('manage_asset', {
+    operation: 'create',
+    assetPath: 'Assets/Materials/NewMaterial.mat',
+    assetType: 'Material'
+});
+
+// Create and position a cube
+await mcpClient.execute('manage_gameobject', {
+    operation: 'create',
+    objectName: 'MyCube',
+    properties: {
+        position: { x: 0, y: 1, z: 0 }
+    }
+});
+
+// Save the current scene
+await mcpClient.execute('manage_scene', {
+    operation: 'save',
+    scenePath: 'Assets/Scenes/MyScene.unity'
+});
 ```
 
-*(Note: If you haven't published this package to npm, you might need to run `npm link` in this template directory first, then use `create-mcp-server my-new-mcp-server`)*
+## How It Works
 
-This will:
+```mermaid
+graph LR
+    Unity[Unity Editor]
+    Bridge[Unity Bridge Asset\nC# Package]
+    Server[MCP Unity Server\nTypeScript]
+    Client[Your Code/Tool]
 
-1. Create a new directory named `my-new-mcp-server`.
-2. Prompt you for project details (name, description).
-3. Copy the template files (`src`, `docs`, config files, etc.) into the new directory.
-4. Update the `package.json` with your project details.
+    Unity <--> Bridge
+    Bridge <-->|WebSocket/Stdio| Server
+    Server <-->|MCP Protocol| Client
 
-After initialization, follow the instructions provided in the terminal:
-
-```bash
-cd my-new-mcp-server
-npm install
-# Review configuration in src/config/ConfigurationManager.ts
-# Add your tools in src/tools/
-# Add your services in src/services/
-npm run dev  # Start the development server
+    classDef unity fill:#478CBF,color:white
+    classDef bridge fill:#44A833,color:white
+    classDef server fill:#3178C6,color:white
+    classDef client fill:#9B4F96,color:white
+    
+    class Unity unity
+    class Bridge bridge
+    class Server server
+    class Client client
 ```
+
+## Configuration
+
+```typescript
+// Server config (environment variables or config file)
+export MCP_TRANSPORT_TYPE=websocket  # or stdio
+export MCP_WEBSOCKET_PORT=8765      # must match Unity Bridge setting
+```
+
+## Unity Bridge Configuration
+
+Tools > MCP Bridge > MCP Bridge Settings
+
+![MCP Unity Bridge Config](assets/unity-bridge-config.png)
+
+## Available Tools
+
+| Tool | Description | Status |
+|------|-------------|---------|
+| 🎨 **manage_asset** | Create, modify, delete Unity assets | **Stable** |
+| 🎲 **manage_gameobject** | Control GameObjects and components | **Stable** |
+| 📦 **manage_scene** | Handle scene operations | **Beta** |
+| 🔄 **ping_unity_bridge** | Test connection to Unity | **Stable** |
+
+## Requirements
+
+- Unity 2022.3.0f1 or later
+- Node.js 18+
+- TypeScript 4.9+
+
+## Need Help?
+
+- Check the [Unity Bridge docs](https://docs.modelcontextprotocol.io/unity-bridge)
+- Open an issue with:
+  - What you tried
+  - What fucked up
+  - Error messages
+  - Relevant code
+
+## Contributing
+
+1. Fork this shit
+2. Create your feature branch
+3. Make your changes
+4. Test your shit
+5. Submit a pull request
+
+## License
+
+MIT - Do whatever the fuck you want
 
 ---
-
-## Developing This Template (Advanced)
-
-This section describes the structure and development process for the `mcp-server-template` *itself*. You typically don't need this if you are just using the template to create your own server.
-
-### Project Structure
-
-- /src: Contains all source code.
-  - /config: Configuration management (ConfigurationManager).
-  - /services: Core business logic classes.
-  - /tools: MCP tool definitions and adapters (*Tool.ts,*Params.ts).
-  - /types: TypeScript interfaces and Zod schemas.
-  - /utils: Shared utility functions (logging, errors, etc.).
-  - initialize.ts: Server instance creation and tool registration.
-  - server.ts: Main application entry point.
-- /dist: Compiled JavaScript output (generated by
-pm run build).
-- package.json: Project metadata and dependencies.
--    sconfig.json: TypeScript compiler options.
-- .eslintrc.json: ESLint configuration.
-- .prettierrc.json: Prettier configuration.
-- .gitignore: Git ignore rules.
-
-## Getting Started
-
-1. **Install Dependencies:**
-    `ash
-    npm install
-    `
-2. **Configure Husky (if needed, first time):**
-    `ash
-    npx husky install
-    `
-3. **Run in Development Mode:** (Uses  s-node and
-odemon for auto-reloading)
-    `ash
-    npm run dev
-    `
-4. **Build for Production:**
-    `ash
-    npm run build
-    `
-5. **Run Production Build:**
-    `ash
-    npm start
-    `
-
-## Adding a New Tool (yourTool)
-
-1. **Define Types:** Create src/types/yourServiceTypes.ts with interfaces (e.g., YourServiceConfig, YourServiceData). Export from src/types/index.ts.
-2. **Implement Service:** Create src/services/YourService.ts with the core logic class. Export from src/services/index.ts.
-3. **Define Tool Params:** Create src/tools/yourToolParams.ts with TOOL_NAME, TOOL_DESCRIPTION, and TOOL_PARAMS (using Zod with detailed .describe() calls).
-4. **Implement Tool Registration:** Create src/tools/yourTool.ts. Import the service and params. Create a function that instantiates the service and calls server.tool() with an async handler that validates input, calls the service, formats output, and handles errors (mapping to McpError).
-5. **Register the Tool:** Import and call the registration function from src/tools/index.ts within the
-egisterTools function.
-6. **Add Configuration:** If needed, update src/config/ConfigurationManager.ts to include config types, defaults, getters, and updaters for the new service.
-7. **Add Utilities:** If needed, add helper functions to src/utils/ and export them.
-8. **Write Tests:** Add unit tests for the service logic in src/services/ and potentially integration tests for the tool adapter in src/tools/.
-
-## Linting and Formatting
-
-- **Lint:**
-pm run lint
-- **Format:**
-pm run format
-
-Code will be automatically linted and formatted on commit via Husky and lint-staged.
+Made with 🖕 using [Model Context Protocol](https://modelcontextprotocol.io)
