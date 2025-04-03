@@ -2,7 +2,7 @@
 
 **Control Unity Editor like a boss with MCP.**
 
-## What is this shit?
+## What is this?
 
 The MCP Unity Manager Server is a TypeScript powerhouse that lets you control Unity Editor programmatically through the Model Context Protocol (MCP). Built to work seamlessly with the [Unity Bridge Asset](https://github.com/modelcontext/mcp-unity-bridge-asset), it's your gateway to automating Unity tasks like a pro.
 
