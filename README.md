@@ -1,6 +1,6 @@
 ﻿![MCP Unity Manager Logo](assets/logo.svg)
 
-**Control Unity Editor like a fucking boss with MCP.**
+**Control Unity Editor like a boss with MCP.**
 
 ## What is this shit?
 
