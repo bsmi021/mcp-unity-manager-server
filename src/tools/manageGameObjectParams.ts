@@ -88,8 +88,9 @@ export const ManageGameObjectParamsSchema = z.object({
         message: "create_params are required for the 'create' action.",
         path: ["create_params"],
     })
-    .refine(data => !(['find', 'modify', 'add_component', 'remove_component', 'delete'].includes(data.action) && !data.identifier), {
-        message: "identifier is required for 'find', 'modify', 'add_component', 'remove_component', and 'delete' actions.",
+    // Identifier is required for modify, component actions, and delete, but OPTIONAL for find (to allow listing roots)
+    .refine(data => !(['modify', 'add_component', 'remove_component', 'delete'].includes(data.action) && !data.identifier), {
+        message: "identifier is required for 'modify', 'add_component', 'remove_component', and 'delete' actions.",
         path: ["identifier"],
     })
     .refine(data => !(data.action === 'modify' && !data.modify_params), {
